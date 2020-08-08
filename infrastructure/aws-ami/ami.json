@@ -1,0 +1,132 @@
+{
+  "min_packer_version": "0.12.0",
+  "variables": {
+    "os_name": "debian",
+    "os_version": "10",
+    "os_code_name": "buster"
+  },
+  "builders": [
+    {
+      "ami_name": "{user `os_name`}}-{{isotime | clean_resource_name}}-{{uuid}}",
+      "name": "{{user `os_name`}}",
+      "instance_type": "t3.micro",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "{{user `os_name`}}-{{user `os_version`}}-amd64-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["136693071363"],
+        "most_recent": true
+      },
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sda1",
+          "volume_size": "8",
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "ssh_username": "admin",
+      "tags": {
+        "os_name": "{{user `os_name`}}",
+        "os_version": "{{user `os_version`}}",
+        "os_code_name": "{{user `os_code_name`}}"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Creating /tmp/files'",
+        "sudo mkdir -p /tmp/files",
+        "sudo chown -R admin:admin /tmp/files"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "file",
+      "source": "./files/",
+      "destination": "/tmp/files"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Moving and making scripts in /var/lib/cloud/scripts/per-boot/ executable'",
+        "sudo cp -r /tmp/files/cloud-scripts-per-boot/* /var/lib/cloud/scripts/per-boot",
+        "sudo chmod -R +x /var/lib/cloud/scripts/per-boot/",
+        "sudo ls -al /var/lib/cloud/scripts/per-boot/"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Moving and making scripts in /var/lib/cloud/scripts/per-instance/ executable'",
+        "sudo cp -r /tmp/files/cloud-scripts-per-instance/* /var/lib/cloud/scripts/per-instance",
+        "sudo chmod -R +x /var/lib/cloud/scripts/per-instance/",
+        "sudo ls -al /var/lib/cloud/scripts/per-instance/"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Moving and making scripts in /home/admin/ executable'",
+        "sudo cp -r /tmp/files/home/* /home/admin",
+        "sudo chown -R admin:admin /home/admin",
+        "sudo chmod -R +x /home/admin/",
+        "sudo ls -al /home/admin/"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Installing Docker'",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install apt-transport-https ca-certificates curl software-properties-common gnupg2 pass -y",
+        "curl -fsSL https://download.docker.com/linux/{{user `os_name`}}/gpg | sudo apt-key add -",
+        "sudo add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/{{user `os_name`}} {{user `os_code_name`}} stable' -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install docker-ce -y"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Installing Docker Compose'",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install python3-pip idle3 -y",
+        "sudo pip3 install --no-cache-dir --upgrade pip",
+        "sudo pip3 install --no-cache-dir docker-compose"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'Add Google DNS'",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install resolvconf -y",
+        "echo 'nameserver 8.8.8.8' | sudo tee /etc/resolvconf/resolv.conf.d/tail",
+        "sudo systemctl restart systemd-resolved.service",
+        "sudo resolvconf -u",
+        "cat /etc/resolv.conf"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "pause_before": "5s"
+    }
+  ]
+}
