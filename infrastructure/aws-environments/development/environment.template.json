@@ -1,5 +1,5 @@
 {
-  "name": "shared",
+  "name": "development",
   "region": "eu-north-1",
   "domain": {
     "primary": "someurl.com"
