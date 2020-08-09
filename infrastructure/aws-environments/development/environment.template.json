@@ -6,5 +6,10 @@
   },
   "vpc": {
     "availability_zone": "eu-north-1a"
+  },
+  "security": {
+    "developer": {
+      "ssh_cidrs": []
+    }
   }
 }

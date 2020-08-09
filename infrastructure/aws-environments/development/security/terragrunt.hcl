@@ -7,5 +7,6 @@ terraform {
 }
 
 inputs = {
-  environment = "${run_cmd("bash", "-c", "jq -r '.name' ${get_parent_terragrunt_dir()}/environment.json | tr -d '\n'")}"
+  environment         = "${run_cmd("bash", "-c", "jq -r '.name' ${get_parent_terragrunt_dir()}/environment.json | tr -d '\n'")}"
+  developer_ssh_cidrs = "${run_cmd("bash", "-c", "jq -r '.security.developer.ssh_cidrs' ${get_parent_terragrunt_dir()}/environment.json | tr -d '\n'")}"
 }

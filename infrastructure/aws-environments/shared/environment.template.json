@@ -3,8 +3,5 @@
   "region": "eu-north-1",
   "domain": {
     "primary": "someurl.com"
-  },
-  "vpc": {
-    "availability_zone": "eu-north-1a"
   }
 }
