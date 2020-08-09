@@ -7,9 +7,13 @@
   "vpc": {
     "availability_zone": "eu-north-1a"
   },
-  "security": {
-    "developer": {
-      "ssh_cidrs": []
+  "service": {
+    "backend": {
+      "security": {
+        "developer": {
+          "ssh_cidrs": ["0.0.0.0/0"]
+        }
+      }
     }
   }
 }
