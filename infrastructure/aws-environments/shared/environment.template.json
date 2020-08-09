@@ -1,0 +1,7 @@
+{
+  "name": "shared",
+  "region": "eu-north-1",
+  "domain": {
+    "primary": "someurl.com"
+  }
+}
