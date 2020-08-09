@@ -7,7 +7,7 @@
   },
   "builders": [
     {
-      "ami_name": "{user `os_name`}}-{{isotime | clean_resource_name}}-{{uuid}}",
+      "ami_name": "{{user `os_name`}}-{{isotime | clean_resource_name}}-{{uuid}}",
       "name": "{{user `os_name`}}",
       "instance_type": "t3.micro",
       "region": "{{user `aws_region`}}",
@@ -35,7 +35,8 @@
       "tags": {
         "os_name": "{{user `os_name`}}",
         "os_version": "{{user `os_version`}}",
-        "os_code_name": "{{user `os_code_name`}}"
+        "os_code_name": "{{user `os_code_name`}}",
+        "build_checksum": "{{user `build_checksum`}}"
       }
     }
   ],
